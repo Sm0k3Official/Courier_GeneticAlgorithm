@@ -17,11 +17,6 @@ public class GeneticAlgorithm
     private Item[] items;
     private Car car = new Car();
 
-    //Test (from Cosmin)
-    //Test (from Mihnea)
-    //Test nou
-    
-
     public void SolveProblem()  
     {
         ReadInput();
