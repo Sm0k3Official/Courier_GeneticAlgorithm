@@ -19,6 +19,7 @@ public class GeneticAlgorithm
 
     //Test (from Cosmin)
     //Test (from Mihnea)
+    
 
     public void SolveProblem()
     {
