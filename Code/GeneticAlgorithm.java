@@ -1,11 +1,13 @@
+import java.util.Random;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 
 public class GeneticAlgorithm 
 {
-    private int maxGenerations = 500;
+    private int maxGenerations = 20;
     private int generationCounter = 0;
+    private int tournamentConstestants = 5;
     private int generationSize;
     private int numberOfItems;
     private double totalFitness;
@@ -17,9 +19,6 @@ public class GeneticAlgorithm
     private Item[] items;
     private Car car = new Car();
 
-    //Test (from Cosmin)
-    //Test (from Mihnea)
-
     public void SolveProblem()  
     {
         ReadInput();
@@ -27,13 +26,25 @@ public class GeneticAlgorithm
         CreateInitialPopulation();
         totalFitness = FindPopulationFitness();
         PrintGeneration(0);
+
+        while(totalFitness < 90 && generationCounter < maxGenerations)
+        {
+            CreateGeneration();
+            UpdateGeneration();
+            totalFitness = FindPopulationFitness();
+            PrintGeneration(generationCounter + 1);
+            generationCounter++;
+        }
+
+        int bestSolution = PickFittest();
+        System.out.println("The best solution is " + currentGeneration[bestSolution] + " with the fitness of " + generationFitness[bestSolution]);
     }
 
     private void ReadInput()
     {
         try
         {
-            File input = new File("data.txt");
+            File input = new File("Data/data.txt");
             Scanner scan = new Scanner(input);
 
             numberOfItems = scan.nextInt();
@@ -46,7 +57,7 @@ public class GeneticAlgorithm
 
             scan.close();
 
-            File itemsInput = new File("itemData.txt");
+            File itemsInput = new File("Data/itemData.txt");
             scan = new Scanner(itemsInput);
 
             for(int i = 0; i < numberOfItems; i++)
@@ -60,7 +71,6 @@ public class GeneticAlgorithm
             System.out.println("An error ocurred");
             e.printStackTrace();
         }
-        
     }
 
     private void PrintGeneration(int generation)
@@ -71,7 +81,7 @@ public class GeneticAlgorithm
             System.out.println(currentGeneration[i] + " " + generationFitness[i]);
         }
 
-        System.out.println("Generation Fitness: " + totalFitness);
+        System.out.println("Averegae Fitness: " + totalFitness + "\n");
     }
 
     private String CreateGene()
@@ -141,6 +151,7 @@ public class GeneticAlgorithm
             currentFitness += generationFitness[i];
         }
 
+        currentFitness /= generationSize;
         return currentFitness;
     }
 
@@ -161,6 +172,137 @@ public class GeneticAlgorithm
         newGeneration[0] = currentGeneration[position];
     }
     
+    private int TournamentSelection(int[] contestants, int size)
+    {
+        int bestContestant = 0;
+
+        for(int i = 0; i < size; i++)
+        {
+            if(generationFitness[contestants[i]] > generationFitness[bestContestant])
+            {
+                bestContestant = contestants[i];
+            }
+        }
+
+        return bestContestant;
+    }
+
+    private int SelectParent()
+    {
+        int[] contestants = new int[tournamentConstestants];
+
+        int randomPosition;
+        for(int i = 0; i < tournamentConstestants; i++)
+        {
+            randomPosition = new Random().nextInt(tournamentConstestants);
+            contestants[i] = randomPosition;
+        }
+
+        return TournamentSelection(contestants, tournamentConstestants);
+    }
+
+    private void CrossoverGenes(int firstParent, int secondParent, int currentPosition)
+    {
+         StringBuilder firstOffspring = new StringBuilder(numberOfItems);
+         StringBuilder secondOffspring = new StringBuilder(numberOfItems);
+
+         int crossoverPoint = new Random().nextInt(numberOfItems - 1);
+
+         for(int i = 0; i < numberOfItems; i++)
+         {
+            if(i < crossoverPoint)
+            {
+                firstOffspring.append(currentGeneration[secondParent].charAt(i));
+                secondOffspring.append(currentGeneration[firstParent].charAt(i));
+            }
+            else
+            {
+                firstOffspring.append(currentGeneration[firstParent].charAt(i));
+                secondOffspring.append(currentGeneration[secondParent].charAt(i));
+            }
+         }
+
+         newGeneration[currentPosition] = firstOffspring.toString();
+         newGeneration[currentPosition + 1] = secondOffspring.toString();
+
+         newGeneration[currentPosition] = MutateGene(newGeneration[currentPosition]);
+         newGeneration[currentPosition + 1] = MutateGene(newGeneration[currentPosition + 1]);
+    }
+
+    private String MutateGene(String gene)
+    {
+        double random;
+        for(int i = 0; i < gene.length(); i++)
+        {
+            random = Math.random();
+            if(random <= mutationRate)
+            {
+                if(gene.charAt(i) == '0')
+                {
+                    gene = gene.substring(0, i) + '1' + gene.substring(i + 1);
+                }
+                else
+                {
+                    gene = gene.substring(0, i) + '0' + gene.substring(i + 1);
+                }
+            }
+        }
+
+        return gene;
+    }
+
+    private void CreateGeneration()
+    {
+        int currentSize = 0;
+
+        if(generationSize % 2 == 1)
+        {
+            Elitism();
+            currentSize++;
+        }
+
+        int firstParent;
+        int secondParent;
+        double random;
+
+        while(currentSize < generationSize)
+        {
+            firstParent = SelectParent();
+            secondParent = SelectParent();
+
+            random = Math.random();
+            if(random <= crossoverRate)
+            {
+                CrossoverGenes(firstParent, secondParent, currentSize);
+                currentSize += 2;
+            }
+        }
+    }
+
+    private void UpdateGeneration()
+    {
+        for(int i = 0; i < generationSize; i++)
+        {
+            currentGeneration[i] = newGeneration[i];
+        }
+    }
+
+    private int PickFittest()
+    {
+        double bestIndividual = -1;
+        int position = 0;
+
+        for(int i = 0; i < generationSize; i++)
+        {
+            if(generationFitness[i] > bestIndividual)
+            {
+                bestIndividual = generationFitness[i];
+                position = i;
+            }
+        }
+
+        return position;
+    }
     public void TestFunction()
     {
         ReadInput();
