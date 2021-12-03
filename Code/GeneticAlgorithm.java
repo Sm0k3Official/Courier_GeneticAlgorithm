@@ -22,7 +22,7 @@ public class GeneticAlgorithm
     //Test (Mihnea cel bun)
     
 
-    public void SolveProblem()
+    public void SolveProblem()  
     {
         ReadInput();
 
@@ -163,7 +163,7 @@ public class GeneticAlgorithm
         newGeneration[0] = currentGeneration[position];
     }
     
-    public void- TestFunction()
+    public void TestFunction()
     {
         ReadInput();
     }
