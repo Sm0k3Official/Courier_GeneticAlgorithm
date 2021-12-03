@@ -20,6 +20,7 @@ public class GeneticAlgorithm
     //Test (from Cosmin)
     //Test (from Mihnea)
     //Test nou
+    //Test push
     
 
     public void SolveProblem()  
