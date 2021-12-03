@@ -18,6 +18,7 @@ public class GeneticAlgorithm
     private Car car = new Car();
 
     //Test (from Cosmin)
+    //Test (from Mihnea)
 
     public void SolveProblem()
     {
