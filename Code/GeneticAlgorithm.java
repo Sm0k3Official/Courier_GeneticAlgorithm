@@ -19,9 +19,6 @@ public class GeneticAlgorithm
 
     //Test (from Cosmin)
     //Test (from Mihnea)
-    //Test (Mihnea cel bun)
-    //Test (Cosmin)
-    //Test 
     
 
     public void SolveProblem()  
