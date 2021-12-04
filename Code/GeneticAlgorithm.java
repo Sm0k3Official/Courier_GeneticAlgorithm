@@ -13,10 +13,11 @@ public class GeneticAlgorithm
     private int tournamentConstestants = 5;
     private int generationSize;
     private int numberOfItems;
+    private int totalPriorityPackages = 0;
     private double totalFitness;
     private double totalValue = 0;
     private double crossoverRate = 0.8;
-    private double mutationRate = 0.05;
+    private double mutationRate = 0.1;
     private double[] generationFitness;
     private String[] currentGeneration;
     private String[] newGeneration;
@@ -86,6 +87,10 @@ public class GeneticAlgorithm
             items[i].ReadItem(scan);
 
             totalValue += items[i].value;
+            if(items[i].hasPriority == true)
+            {
+                totalPriorityPackages++;
+            }
         }
 
         scan.close();
@@ -147,8 +152,12 @@ public class GeneticAlgorithm
     private double EvaluateGene(String gene)
     {
         double currentWeight = 0;
+        double currentVolume = 0;
         double currentValue = 0;
+        int priorityPackages = 0;
+
         double fitnessValue = 0;
+        double fitnessPackage = 0;
         char character;
 
         for(int i = 0; i < numberOfItems; i++)
@@ -157,17 +166,26 @@ public class GeneticAlgorithm
             if(character == '1')
             {
                 currentWeight += items[i].weight;
+                currentVolume += items[i].volume;
+
                 currentValue += items[i].value;
+                if(items[i].hasPriority == true)
+                {
+                    priorityPackages++;
+                }
             }
         }
 
-        if(currentWeight <= car.maxWeight)
+        if(currentWeight <= car.maxWeight && currentVolume <= car.maxVolume)
         {
-            fitnessValue = currentValue;
+            fitnessValue = (currentValue / totalValue) * 100;
+
+            fitnessPackage = priorityPackages;
+            fitnessPackage /= totalPriorityPackages;
+            fitnessPackage *= 100;
         }
 
-        fitnessValue = (fitnessValue / totalValue) * 100;
-        return fitnessValue;
+        return ((fitnessPackage + fitnessValue) / 2);
     }
 
     private double FindPopulationFitness()
