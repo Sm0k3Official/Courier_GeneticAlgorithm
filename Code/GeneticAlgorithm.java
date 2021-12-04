@@ -23,6 +23,9 @@ public class GeneticAlgorithm
     private Item[] items;
     private Car car = new Car();
 
+    //Test (from Alex)
+    //Test (from Cosmin)
+
     public void SolveProblem()  
     {
         ReadInput();
