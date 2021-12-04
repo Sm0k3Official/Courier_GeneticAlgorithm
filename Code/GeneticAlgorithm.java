@@ -20,6 +20,7 @@ public class GeneticAlgorithm
     private Car car = new Car();
 
     //Test (from Alex)
+    //Test (from Cosmin)
 
     public void SolveProblem()  
     {
