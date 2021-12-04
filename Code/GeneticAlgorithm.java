@@ -51,7 +51,6 @@ public class GeneticAlgorithm
     {
         try
         {
-            
             ReadData();
             ReadItemsData();
             ReadCarData();
@@ -334,10 +333,5 @@ public class GeneticAlgorithm
         }
 
         return position;
-    }
-    
-    public void TestFunction()
-    {
-        ReadInput();
     }
 }
