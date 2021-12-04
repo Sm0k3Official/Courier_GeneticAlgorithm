@@ -7,16 +7,21 @@ public class Item
     public double value;
     public boolean hasPriority;
 
+    private String inputLine;
+
     public void ReadItem(Scanner scan)
     {
-        weight = scan.nextDouble();
+        inputLine = scan.nextLine();
+        FormatString();
+    }
 
-        //val = scan.nextDouble();
-        ///volume = val;
+    private void FormatString()
+    {
+        String[] values = inputLine.split(" ");
 
-        value = scan.nextDouble();
-
-        //priority = scan.nextBoolean();
-        //hasPriority = priority;
+        weight = Double.parseDouble(values[0]);
+        volume = Double.parseDouble(values[1]);
+        value = Double.parseDouble(values[1]);
+        hasPriority = Boolean.parseBoolean(values[3]);
     }
 }

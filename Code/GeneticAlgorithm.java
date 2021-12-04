@@ -2,15 +2,19 @@ import java.util.Random;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.DecimalFormat;
 
 public class GeneticAlgorithm 
 {
+    private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
     private int maxGenerations = 20;
     private int generationCounter = 0;
     private int tournamentConstestants = 5;
     private int generationSize;
     private int numberOfItems;
     private double totalFitness;
+    private double totalValue = 0;
     private double crossoverRate = 0.8;
     private double mutationRate = 0.05;
     private double[] generationFitness;
@@ -37,34 +41,17 @@ public class GeneticAlgorithm
         }
 
         int bestSolution = PickFittest();
-        System.out.println("The best solution is " + currentGeneration[bestSolution] + " with the fitness of " + generationFitness[bestSolution]);
+        System.out.println("The best solution is " + currentGeneration[bestSolution] + " with the fitness of " + decimalFormat.format(generationFitness[bestSolution]) + "%");
     }
 
     private void ReadInput()
     {
         try
         {
-            File input = new File("Data/data.txt");
-            Scanner scan = new Scanner(input);
-
-            numberOfItems = scan.nextInt();
-            generationSize = scan.nextInt();
-
-            items = new Item[numberOfItems];
-            generationFitness = new double[generationSize];
-            currentGeneration = new String[generationSize];
-            newGeneration = new String[generationSize];
-
-            scan.close();
-
-            File itemsInput = new File("Data/itemData.txt");
-            scan = new Scanner(itemsInput);
-
-            for(int i = 0; i < numberOfItems; i++)
-            {
-                items[i] = new Item();
-                items[i].ReadItem(scan);
-            }
+            
+            ReadData();
+            ReadItemsData();
+            ReadCarData();
         }
         catch(FileNotFoundException e)
         {
@@ -73,15 +60,56 @@ public class GeneticAlgorithm
         }
     }
 
+    private void ReadData() throws FileNotFoundException
+    {
+        File input = new File("Data/data.txt");
+
+        Scanner scan = new Scanner(input);
+        numberOfItems = scan.nextInt();
+        generationSize = scan.nextInt();
+
+        items = new Item[numberOfItems];
+        generationFitness = new double[generationSize];
+        currentGeneration = new String[generationSize];
+        newGeneration = new String[generationSize];
+
+        scan.close();
+    }
+
+    private void ReadItemsData() throws FileNotFoundException
+    {
+        File itemsInput = new File("Data/itemData.txt");
+
+        Scanner scan = new Scanner(itemsInput);
+        for(int i = 0; i < numberOfItems; i++)
+        {
+            items[i] = new Item();
+            items[i].ReadItem(scan);
+
+            totalValue += items[i].value;
+        }
+
+        scan.close();
+    }
+
+    private void ReadCarData() throws FileNotFoundException
+    {
+        File carInput = new File("Data/carData.txt");
+        Scanner scan = new Scanner(carInput);
+        car.ReadCarInput(scan);
+        scan.close();
+    }
+
     private void PrintGeneration(int generation)
     {
+
         System.out.println("Generation " + generation);
         for(int i = 0; i < generationSize; i++)
         {
-            System.out.println(currentGeneration[i] + " " + generationFitness[i]);
+            System.out.println(currentGeneration[i] + " " + decimalFormat.format(generationFitness[i]) + "%");
         }
 
-        System.out.println("Averegae Fitness: " + totalFitness + "\n");
+        System.out.println("Averegae Fitness: " + decimalFormat.format(totalFitness) + "%\n");
     }
 
     private String CreateGene()
@@ -139,6 +167,7 @@ public class GeneticAlgorithm
             fitnessValue = currentValue;
         }
 
+        fitnessValue = (fitnessValue / totalValue) * 100;
         return fitnessValue;
     }
 
@@ -303,6 +332,7 @@ public class GeneticAlgorithm
 
         return position;
     }
+    
     public void TestFunction()
     {
         ReadInput();
