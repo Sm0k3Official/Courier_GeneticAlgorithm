@@ -1,3 +1,4 @@
+package PackageArrangement;
 import java.util.Scanner;
 
 public class Item 

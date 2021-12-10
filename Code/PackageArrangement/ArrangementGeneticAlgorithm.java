@@ -1,10 +1,11 @@
+package PackageArrangement;
 import java.util.Random;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 
-public class GeneticAlgorithm 
+public class ArrangementGeneticAlgorithm 
 {
     private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
