@@ -1,4 +1,5 @@
 package PackageArrangement;
+
 import java.util.Random;
 import java.util.Scanner;
 import java.io.File;
@@ -29,15 +30,15 @@ public class ArrangementGeneticAlgorithm
     {
         ReadInput();
 
-        CreateInitialPopulation();
-        totalFitness = FindPopulationFitness();
+        CreateInitialGeneration();
+        totalFitness = FindGenerationFitness();
         PrintGeneration(0);
 
         while(totalFitness < 90 && generationCounter < maxGenerations)
         {
             CreateGeneration();
             UpdateGeneration();
-            totalFitness = FindPopulationFitness();
+            totalFitness = FindGenerationFitness();
             PrintGeneration(generationCounter + 1);
             generationCounter++;
         }
@@ -63,7 +64,7 @@ public class ArrangementGeneticAlgorithm
 
     private void ReadData() throws FileNotFoundException
     {
-        File input = new File("Data/data.txt");
+        File input = new File("Data/arrangementData.txt");
 
         Scanner scan = new Scanner(input);
         numberOfItems = scan.nextInt();
@@ -142,7 +143,7 @@ public class ArrangementGeneticAlgorithm
         return gene.toString();
     }
 
-    private void CreateInitialPopulation()
+    private void CreateInitialGeneration()
     {
         for(int i = 0; i < generationSize; i++)
         {
@@ -189,7 +190,7 @@ public class ArrangementGeneticAlgorithm
         return ((fitnessPackage + fitnessValue) / 2);
     }
 
-    private double FindPopulationFitness()
+    private double FindGenerationFitness()
     {
         double currentFitness = 0;
         for(int i = 0; i < generationSize; i++)
