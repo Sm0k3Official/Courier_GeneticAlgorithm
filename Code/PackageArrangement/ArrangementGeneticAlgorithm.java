@@ -52,8 +52,8 @@ public class ArrangementGeneticAlgorithm
         try
         {
             ReadData();
-            ReadItemsData();
             ReadCarData();
+            ReadItemsData();
         }
         catch(FileNotFoundException e)
         {
@@ -81,17 +81,27 @@ public class ArrangementGeneticAlgorithm
     private void ReadItemsData() throws FileNotFoundException
     {
         File itemsInput = new File("Data/itemData.txt");
-
+        Item currentItem = new Item();
         Scanner scan = new Scanner(itemsInput);
         for(int i = 0; i < numberOfItems; i++)
         {
-            items[i] = new Item();
-            items[i].ReadItem(scan);
+            currentItem.ReadItem(scan);
 
-            totalValue += items[i].value;
-            if(items[i].hasPriority == true)
+            if(CheckIfFits(currentItem) == true)
             {
-                totalPriorityPackages++;
+                items[i] = new Item();
+                items[i].CopyItem(currentItem);
+
+                totalValue += items[i].value;
+                if(items[i].hasPriority == true)
+                {
+                    totalPriorityPackages++;
+                }
+            }
+            else
+            {
+                numberOfItems--;
+                i--;
             }
         }
 
@@ -104,6 +114,48 @@ public class ArrangementGeneticAlgorithm
         Scanner scan = new Scanner(carInput);
         car.ReadCarInput(scan);
         scan.close();
+    }
+
+    private Boolean Fits(Item item)
+    {
+        if(item.dimensions.width <= car.dimension.width && item.dimensions.length <= car.dimension.length && item.dimensions.height <= car.dimension.height)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private Boolean CheckIfFits(Item item)
+    {
+        
+        if(Fits(item) == true)
+        {
+            return true;
+        }
+
+        item.RotateOX();
+
+        if(Fits(item) == true)
+        {
+            return true;
+        }
+
+        item.RotateOZ();
+
+        if(Fits(item) == true)
+        {
+            return true;
+        }
+
+        item.RotateOY();
+
+        if(Fits(item) == true)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void PrintGeneration(int generation)

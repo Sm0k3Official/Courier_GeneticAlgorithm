@@ -5,9 +5,9 @@ public class Solution
 {
     public static void main(String[] args)
     {
-       RoutingGeneticAlgorithm ga = new RoutingGeneticAlgorithm();
+       ArrangementGeneticAlgorithm ga = new ArrangementGeneticAlgorithm();
 
-       ga.Testing();
+       ga.SolveProblem();
     }
 
     
