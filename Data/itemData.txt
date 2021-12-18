@@ -2,4 +2,4 @@
 0.5 1 1 10 100 true Timisoara
 0.8 0.3 0.5 15 25 false Cluj
 2 0.5 1 30 42 true Satu-Mare
-9 11 10 50 18 false Gorj
+6 3 6 50 18 false Gorj

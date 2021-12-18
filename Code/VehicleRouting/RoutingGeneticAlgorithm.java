@@ -10,16 +10,17 @@ public class RoutingGeneticAlgorithm
     private int citiesNumber = 42;
     private int destinationsNumber;
     private int generationSize = 10;
+    private City hubLocation;
+    private int geneSize;
+    private double[] generationFitness;
     private City[] cities;
     private City[] destinations;
-    private City hubLocation;
-    private String[] currentGeneration;
+    private int[][] currentGeneration;
 
     private void ReadInput()
     {
         try
         {
-           
             InitializeCities();
             ReadDistances();
             ReadStartingPoint();
@@ -74,6 +75,7 @@ public class RoutingGeneticAlgorithm
         Scanner scan = new Scanner(input);
 
         destinationsNumber = scan.nextInt();
+        geneSize = destinationsNumber + 2;
         scan.nextLine();
         destinations = new City[destinationsNumber];
 
@@ -112,13 +114,18 @@ public class RoutingGeneticAlgorithm
     {
         for(int i = 0; i < generationSize; i++)
         {
-            System.out.println(currentGeneration[i]);
+            for(int j = 0; j < geneSize; j++)
+            {
+                System.out.print(currentGeneration[i][j]);
+            }
+
+            System.out.println(" " + generationFitness[i]);
         }
     }
 
-    private String CreateGene()
+    private int[] CreateGene()
     {
-        StringBuilder gene = new StringBuilder();
+        int[] gene = new int[destinationsNumber + 2];
         Boolean[] chosen = new Boolean[destinationsNumber];
         for(int i = 0; i < destinationsNumber; i++)
         {
@@ -127,46 +134,69 @@ public class RoutingGeneticAlgorithm
 
         int chromosome;
         Random random = new Random();
-        gene.append("-1");
-        for(int i = 0; i < destinationsNumber; i++)
+
+        for(int i = 0; i < geneSize; i++)
         {
+            if(i == 0 || i == geneSize - 1)
+            {
+                gene[i] = -1;
+                continue;
+            }
             chromosome = random.nextInt(destinationsNumber);
             while(chosen[chromosome] == true)
             {
                 chromosome = random.nextInt(destinationsNumber);
             }
 
-            gene.append(chromosome);
+            gene[i] = chromosome;
             chosen[chromosome] = true;
         }
 
-        gene.append("-1");
-        return gene.toString();
+        return gene;
     }
 
     private void CreateInitialGeneration()
     {
-        currentGeneration = new String[generationSize];
+        currentGeneration = new int[generationSize][];
         for(int i = 0; i < generationSize; i++)
         {
+            currentGeneration[i] = new int[geneSize];
             currentGeneration[i] = CreateGene();
         }
     }
 
-    private double EvaluateGene(String gene)
+    private double EvaluateGene(int[] gene)
     {
-        return 0;
-    }
+        double distance = 0;
+        City currentCity = new City();
 
-    private double FindGenerationFitness()
+        currentCity = hubLocation;
+        for(int i = 1; i < geneSize - 1; i++)
+        {
+            distance += currentCity.DistanceTo(destinations[gene[i]]);
+            currentCity = destinations[gene[i]];
+        }
+
+        currentCity = destinations[gene[geneSize - 2]];
+        distance += currentCity.DistanceTo(hubLocation);
+
+        return distance;
+    }   
+
+    private void FindGenerationFitness()
     {
-        return 0;
+        generationFitness = new double[generationSize];
+        for(int i = 0; i < generationSize; i++)
+        {
+            generationFitness[i] = EvaluateGene(currentGeneration[i]);
+        }
     }
 
     public void Testing()
     {
         ReadInput();
         CreateInitialGeneration();
+        FindGenerationFitness(); 
         PrintGeneration();
     }
 }

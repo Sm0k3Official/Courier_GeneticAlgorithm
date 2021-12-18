@@ -10,7 +10,7 @@ public class ArrangementGeneticAlgorithm
 {
     private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-    private int maxGenerations = 20;
+    private int maxGenerations;
     private int generationCounter = 0;
     private int tournamentConstestants = 5;
     private int generationSize;
@@ -18,14 +18,14 @@ public class ArrangementGeneticAlgorithm
     private int totalPriorityPackages = 0;
     private double totalFitness;
     private double totalValue = 0;
-    private double crossoverRate = 0.8;
-    private double mutationRate = 0.1;
+    private double crossoverRate;
+    private double mutationRate;
+    private Car car = new Car();
     private double[] generationFitness;
     private String[] currentGeneration;
     private String[] newGeneration;
     private Item[] items;
-    private Car car = new Car();
-
+    
     public void SolveProblem()  
     {
         ReadInput();
@@ -67,8 +67,11 @@ public class ArrangementGeneticAlgorithm
         File input = new File("Data/arrangementData.txt");
 
         Scanner scan = new Scanner(input);
-        numberOfItems = scan.nextInt();
+        maxGenerations = scan.nextInt();
         generationSize = scan.nextInt();
+        numberOfItems = scan.nextInt();
+        crossoverRate = scan.nextDouble();
+        mutationRate = scan.nextDouble();
 
         items = new Item[numberOfItems];
         generationFitness = new double[generationSize];
