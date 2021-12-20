@@ -1,2 +1,2 @@
-100
-5 10 5
+Max Weight: 100
+Dimensions: Length-5 Width-10 Height-5

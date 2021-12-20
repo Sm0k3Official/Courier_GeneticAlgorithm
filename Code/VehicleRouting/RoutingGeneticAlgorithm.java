@@ -4,18 +4,46 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Random;
 import java.util.Scanner;
+import java.text.DecimalFormat;
 
 public class RoutingGeneticAlgorithm
 {
+    private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
     private int citiesNumber = 42;
     private int destinationsNumber;
-    private int generationSize = 10;
+    private int maxGenerations;
+    private int generationCounter = 0;
+    private int generationSize;
+    private int tournamentConstestants;
     private City hubLocation;
     private int geneSize;
-    private double[] generationFitness;
+    private double crossoverRate;
+    private double mutationRate;
     private City[] cities;
     private City[] destinations;
     private int[][] currentGeneration;
+    private int[][] newGeneration;
+    private double[] generationFitness;
+
+    public void SolveProblem()
+    {
+        ReadInput();
+        AllocateMemory();
+
+        CreateInitialGeneration();
+        FindGenerationFitness();
+        PrintGeneration();
+
+        while(generationCounter < maxGenerations)
+        {
+            CreateGeneration();
+            UpdateGeneration();
+            FindGenerationFitness();
+            PrintGeneration();
+            generationCounter++;
+        }
+    }
 
     private void ReadInput()
     {
@@ -23,7 +51,7 @@ public class RoutingGeneticAlgorithm
         {
             InitializeCities();
             ReadDistances();
-            ReadStartingPoint();
+            ReadData();
         }
         catch(FileNotFoundException e)
         {
@@ -31,29 +59,7 @@ public class RoutingGeneticAlgorithm
             e.printStackTrace();
         }
     }
-
-    private void ReadStartingPoint()
-    {
-        Scanner scan = new Scanner(System.in);
-
-        System.out.print("Enter the hub's location: ");
-        String data;
-
-        data = scan.nextLine();
-        scan.close();
-
-        int i;
-        for(i = 0; i < citiesNumber; i++)
-        {
-            if(data.equals(cities[i].name))
-            {
-                break;
-            }
-        }
-
-        hubLocation = cities[i];
-    }
-
+    
     private void InitializeCities() throws FileNotFoundException
     {
         File input = new File("Data/cityData.txt");
@@ -75,7 +81,6 @@ public class RoutingGeneticAlgorithm
         Scanner scan = new Scanner(input);
 
         destinationsNumber = scan.nextInt();
-        geneSize = destinationsNumber + 2;
         scan.nextLine();
         destinations = new City[destinationsNumber];
 
@@ -107,11 +112,102 @@ public class RoutingGeneticAlgorithm
             destinations[i] = cities[index];
         }
 
+        geneSize = destinationsNumber + 2;
+
         scan.close();
+    }
+
+    private String FindName(String input)
+    {
+        String name = input.split(":")[0];
+        name = name.toLowerCase();
+
+        return name;
+    }
+
+    private String FindValue(String input)
+    {
+        String value = input.split(":")[1];
+        value = value.strip();
+
+        return value;
+    }
+
+    private void ReadData() throws FileNotFoundException
+    {
+        File input = new File("Data/routingData.txt");
+        Scanner scan = new Scanner(input);
+
+        String inputData;
+        String name;
+        String value;
+
+        while(scan.hasNextLine())
+        {
+            inputData = scan.nextLine();
+            inputData = inputData.strip();
+            
+            name = FindName(inputData);
+            value = FindValue(inputData);
+
+            switch(name)
+            {
+            case "hub":
+                hubLocation = new City();
+                for(int i = 0; i < citiesNumber; i++)
+                {
+                    if(cities[i].name.equals(value))
+                    {
+                        hubLocation = cities[i];
+                        break;
+                    }
+                }
+                break;
+
+            case "generation size":
+                generationSize = Integer.parseInt(value);
+                break;
+
+            case "tournament contestants":
+                tournamentConstestants = Integer.parseInt(value);
+                break;
+
+            case "crossover rate":
+                crossoverRate = Double.parseDouble(value);
+                break;
+
+            case "mutation rate":
+                mutationRate = Double.parseDouble(value);
+                break;
+
+            case "max generations":
+                maxGenerations = Integer.parseInt(value);
+            }
+        }
+
+        scan.close();
+    }
+
+    private void AllocateMemory()
+    {
+        currentGeneration = new int[generationSize][];
+        for(int i = 0; i < generationSize; i++)
+        {
+            currentGeneration[i] = new int[geneSize];
+        }
+        
+        newGeneration = new int[generationSize][];
+        for(int i = 0; i < generationSize; i++)
+        {
+            newGeneration[i] = new int[geneSize];
+        }
+
+        generationFitness = new double[generationSize];
     }
 
     private void PrintGeneration()
     {
+        System.out.println("Generation " + generationCounter);
         for(int i = 0; i < generationSize; i++)
         {
             for(int j = 0; j < geneSize; j++)
@@ -119,7 +215,7 @@ public class RoutingGeneticAlgorithm
                 System.out.print(currentGeneration[i][j]);
             }
 
-            System.out.println(" " + generationFitness[i]);
+            System.out.println(" " + decimalFormat.format(generationFitness[i]));
         }
     }
 
@@ -157,7 +253,6 @@ public class RoutingGeneticAlgorithm
 
     private void CreateInitialGeneration()
     {
-        currentGeneration = new int[generationSize][];
         for(int i = 0; i < generationSize; i++)
         {
             currentGeneration[i] = new int[geneSize];
@@ -185,16 +280,177 @@ public class RoutingGeneticAlgorithm
 
     private void FindGenerationFitness()
     {
-        generationFitness = new double[generationSize];
         for(int i = 0; i < generationSize; i++)
         {
             generationFitness[i] = EvaluateGene(currentGeneration[i]);
         }
     }
 
+    private void Elitism()
+    {
+        double min = Double.POSITIVE_INFINITY;
+        int position = 0;
+
+        for(int i = 0; i < generationSize; i++)
+        {
+            if(generationFitness[i] < min)
+            {
+                min = generationFitness[i];
+                position = i;
+            }
+        }
+
+        newGeneration[0] = currentGeneration[position];
+    }
+
+    private int TournamentSelection(int[] contestants, int size)
+    {
+        int bestContestant = contestants[0];
+
+        for(int i = 1; i < size; i++)
+        {
+            if(generationFitness[bestContestant] > generationFitness[contestants[i]])
+            {
+                bestContestant = contestants[i];
+            }
+        }
+
+        return bestContestant;
+    }
+
+    private int SelectParent()
+    {
+        int[] contestants = new int[tournamentConstestants];
+
+        int randomPosition;
+        for(int i = 0; i < tournamentConstestants; i++)
+        {
+            randomPosition = new Random().nextInt(generationSize);
+            contestants[i] = randomPosition;
+        }
+
+        return TournamentSelection(contestants, tournamentConstestants);
+    }
+
+    private Boolean IsInOffspring(int[] offspring, int city)
+    {
+        for(int i = 0; i < offspring.length; i++)
+        {
+            if(offspring[i] == city)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void CrossoverGenes(int[] firstParent, int[] secondParent, int currentSize)
+    {
+        int[] offspring = new int[geneSize];
+        for(int i = 0; i < geneSize; i++)
+        {
+            offspring[i] = -1;
+        }
+
+        int randomPosition = new Random().nextInt(geneSize - 2) + 1;
+        int randomLength = new Random().nextInt(geneSize - randomPosition);
+
+        for(int i = randomPosition; i < randomPosition + randomLength; i++)
+        {
+            offspring[i] = firstParent[i];
+        }
+        
+        int index = 1;
+        for(int i = 1; i < geneSize - 1; i++)
+        {
+            while(randomPosition <= index && index < randomPosition + randomLength)
+            {
+                index++;
+            }
+
+            if(IsInOffspring(offspring, secondParent[i]) == false)
+            {
+                offspring[index++] = secondParent[i];
+            }
+        }
+
+        newGeneration[currentSize] = offspring;
+
+        double random = Math.random();
+        if(random <= mutationRate)
+        {
+            newGeneration[currentSize] = MutateGene(newGeneration[currentSize]);
+        }
+    }
+    
+    private int[] MutateGene(int[] gene)
+    {
+        int firstPosition = new Random().nextInt(geneSize - 1) + 1;
+        int secondPosition = new Random().nextInt(geneSize - 1) + 1;
+        
+        int temporary = gene[firstPosition];
+        gene[firstPosition] = gene[secondPosition];
+        gene[firstPosition] = temporary;
+
+        return gene;
+    }
+
+    private void CreateGeneration()
+    {
+        int currentSize = 0;
+
+        Elitism();
+        currentSize++;
+
+        int firstParent;
+        int secondParent;
+        double random;
+
+        while(currentSize < generationSize)
+        {
+            random = Math.random();
+
+            if(random <= crossoverRate)
+            {
+                firstParent = SelectParent();
+                secondParent = SelectParent();
+
+                CrossoverGenes(currentGeneration[firstParent], currentGeneration[secondParent], currentSize);
+                currentSize++;
+            }
+        }
+    }
+
+    private void UpdateGeneration()
+    {
+        for(int i = 0; i < generationSize; i++)
+        {
+            currentGeneration[i] = newGeneration[i];
+        }
+    }
+
+    private int PickFittest()
+    {
+        double min = Double.POSITIVE_INFINITY;
+        int position = 0;
+
+        for(int i = 0; i < generationSize; i++)
+        {
+            if(generationFitness[i] < min)
+            {
+                min = generationFitness[i];
+                position = i;
+            }
+        }
+
+        return position;
+    }
+
     public void Testing()
     {
         ReadInput();
+        AllocateMemory();
         CreateInitialGeneration();
         FindGenerationFitness(); 
         PrintGeneration();

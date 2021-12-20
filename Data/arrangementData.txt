@@ -1,5 +1,6 @@
-20
-25
-5
-0.8
-0.1
+Generation Size: 20
+Max Generations: 25
+Items Number: 5
+Crossover Rate: 0.8
+Mutation Rate: 0.1
+Tournament Contestants: 5

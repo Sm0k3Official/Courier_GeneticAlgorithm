@@ -12,7 +12,7 @@ public class ArrangementGeneticAlgorithm
 
     private int maxGenerations;
     private int generationCounter = 0;
-    private int tournamentConstestants = 5;
+    private int tournamentConstestants;
     private int generationSize;
     private int numberOfItems;
     private int totalPriorityPackages = 0;
@@ -52,6 +52,7 @@ public class ArrangementGeneticAlgorithm
         try
         {
             ReadData();
+            AllocateMemory();
             ReadCarData();
             ReadItemsData();
         }
@@ -62,21 +63,67 @@ public class ArrangementGeneticAlgorithm
         }
     }
 
+    private String FindName(String input)
+    {
+        String name = input.split(":")[0];
+        name = name.strip();
+        name = name.toLowerCase();
+
+        return name;
+    }
+
+    private String FindValue(String input)
+    {
+        String value = input.split(":")[1];
+        value = value.strip();
+
+        return value;
+    }
+
     private void ReadData() throws FileNotFoundException
     {
         File input = new File("Data/arrangementData.txt");
-
         Scanner scan = new Scanner(input);
-        maxGenerations = scan.nextInt();
-        generationSize = scan.nextInt();
-        numberOfItems = scan.nextInt();
-        crossoverRate = scan.nextDouble();
-        mutationRate = scan.nextDouble();
 
-        items = new Item[numberOfItems];
-        generationFitness = new double[generationSize];
-        currentGeneration = new String[generationSize];
-        newGeneration = new String[generationSize];
+        String inputData;
+        String name;
+        String data;
+
+        while(scan.hasNextLine())
+        {
+            inputData = scan.nextLine();
+            inputData = inputData.strip();
+
+            name = FindName(inputData);
+            data = FindValue(inputData);
+
+            switch(name)
+            {
+            case "max generations":
+                maxGenerations = Integer.parseInt(data);
+                break;
+
+            case "generation size":
+                generationSize = Integer.parseInt(data);
+                break;
+
+            case "items number":
+                numberOfItems = Integer.parseInt(data);
+                break;
+
+            case "crossover rate":
+                crossoverRate = Double.parseDouble(data);
+                break;
+
+            case "mutation rate":
+                mutationRate = Double.parseDouble(data);
+                break;
+
+            case "tournament contestants":
+                tournamentConstestants = Integer.parseInt(data);
+                break;
+            }
+        }
 
         scan.close();
     }
@@ -117,6 +164,14 @@ public class ArrangementGeneticAlgorithm
         Scanner scan = new Scanner(carInput);
         car.ReadCarInput(scan);
         scan.close();
+    }
+
+    private void AllocateMemory()
+    {
+        items = new Item[numberOfItems];
+        generationFitness = new double[generationSize];
+        currentGeneration = new String[generationSize];
+        newGeneration = new String[generationSize];
     }
 
     private Boolean Fits(Item item)
@@ -297,7 +352,7 @@ public class ArrangementGeneticAlgorithm
         int randomPosition;
         for(int i = 0; i < tournamentConstestants; i++)
         {
-            randomPosition = new Random().nextInt(tournamentConstestants);
+            randomPosition = new Random().nextInt(generationSize);
             contestants[i] = randomPosition;
         }
 
@@ -370,12 +425,11 @@ public class ArrangementGeneticAlgorithm
 
         while(currentSize < generationSize)
         {
-            firstParent = SelectParent();
-            secondParent = SelectParent();
-
             random = Math.random();
             if(random <= crossoverRate)
             {
+                firstParent = SelectParent();
+                secondParent = SelectParent();
                 CrossoverGenes(firstParent, secondParent, currentSize);
                 currentSize += 2;
             }
