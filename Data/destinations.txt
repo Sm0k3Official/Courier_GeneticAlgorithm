@@ -1,5 +1,5 @@
 4
-Covasna
-Hunedoara
-Constanta
-Bacau
+Brasov
+Timis
+Cluj
+Satu-Mare

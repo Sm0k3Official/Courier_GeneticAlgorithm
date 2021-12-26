@@ -1,5 +1,5 @@
 2 1 0.5 25 50 false Brasov
-0.5 1 1 10 100 true Timisoara
+0.5 1 1 10 100 true Timis
 0.8 0.3 0.5 15 25 false Cluj
 2 0.5 1 30 42 true Satu-Mare
 6 3 6 50 18 false Gorj

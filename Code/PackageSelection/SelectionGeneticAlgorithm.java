@@ -1,12 +1,15 @@
-package PackageArrangement;
+package PackageSelection;
 
 import java.util.Random;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
-public class ArrangementGeneticAlgorithm 
+public class SelectionGeneticAlgorithm 
 {
     private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
@@ -16,6 +19,8 @@ public class ArrangementGeneticAlgorithm
     private int generationSize;
     private int numberOfItems;
     private int totalPriorityPackages = 0;
+    private int previousCount = 0;
+    private int maxPrevious;
     private double totalFitness;
     private double totalValue = 0;
     private double crossoverRate;
@@ -25,26 +30,65 @@ public class ArrangementGeneticAlgorithm
     private String[] currentGeneration;
     private String[] newGeneration;
     private Item[] items;
+    private double[] previousBests;
     
-    public void SolveProblem()  
+    public Item[] SolveProblem()  
     {
         ReadInput();
 
         CreateInitialGeneration();
         totalFitness = FindGenerationFitness();
-        PrintGeneration(0);
 
-        while(totalFitness < 90 && generationCounter < maxGenerations)
+        try
         {
-            CreateGeneration();
-            UpdateGeneration();
-            totalFitness = FindGenerationFitness();
-            PrintGeneration(generationCounter + 1);
-            generationCounter++;
+            FileWriter fileWriter = new FileWriter("Data/selectionOutput.txt");
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+
+            PrintGeneration(0, printWriter);
+            while(CheckForStop() == false && generationCounter < maxGenerations)
+            {
+                CreateGeneration();
+                UpdateGeneration();
+                totalFitness = FindGenerationFitness();
+                PrintGeneration(generationCounter + 1, printWriter);
+                generationCounter++;
+            }
+
+            printWriter.close();
+        }
+        catch(IOException e)
+        {
+            System.out.println("An error occurred!");
+            e.printStackTrace();
         }
 
-        int bestSolution = PickFittest();
-        System.out.println("The best solution is " + currentGeneration[bestSolution] + " with the fitness of " + decimalFormat.format(generationFitness[bestSolution]) + "%");
+        int packagesNumber = 0;
+
+        String finalSolution = currentGeneration[PickFittest()];
+        for(int i = 0; i < numberOfItems; i++)
+        {
+            if(finalSolution.charAt(i) == '1')
+            {
+                packagesNumber++;
+            }
+        }
+
+        Item[] solution = new Item[packagesNumber];
+        for(int i = 0; i < packagesNumber; i++)
+        {
+            solution[i] = new Item();
+        }
+
+        int currentIndex = 0;
+        for(int i = 0; i < numberOfItems; i++)
+        {
+            if(finalSolution.charAt(i) == '1')
+            {
+                solution[currentIndex++] = items[i];
+            }
+        }
+
+        return solution;
     }
 
     private void ReadInput()
@@ -82,7 +126,7 @@ public class ArrangementGeneticAlgorithm
 
     private void ReadData() throws FileNotFoundException
     {
-        File input = new File("Data/arrangementData.txt");
+        File input = new File("Data/selectionData.txt");
         Scanner scan = new Scanner(input);
 
         String inputData;
@@ -121,6 +165,10 @@ public class ArrangementGeneticAlgorithm
 
             case "tournament contestants":
                 tournamentConstestants = Integer.parseInt(data);
+                break;
+
+            case "max previous":
+                maxPrevious = Integer.parseInt(data);
                 break;
             }
         }
@@ -172,6 +220,7 @@ public class ArrangementGeneticAlgorithm
         generationFitness = new double[generationSize];
         currentGeneration = new String[generationSize];
         newGeneration = new String[generationSize];
+        previousBests = new double[maxPrevious];
     }
 
     private Boolean Fits(Item item)
@@ -185,47 +234,48 @@ public class ArrangementGeneticAlgorithm
     }
 
     private Boolean CheckIfFits(Item item)
-    {
-        
+    {    
         if(Fits(item) == true)
         {
             return true;
         }
 
-        item.RotateOX();
-
-        if(Fits(item) == true)
+        for(int i = 0; i < 2; i++)
         {
-            return true;
-        }
+            item.RotateOX();
 
-        item.RotateOZ();
-
-        if(Fits(item) == true)
-        {
-            return true;
-        }
-
-        item.RotateOY();
-
-        if(Fits(item) == true)
-        {
-            return true;
+            if(Fits(item) == true)
+            {
+                return true;
+            }
+    
+            item.RotateOZ();
+    
+            if(Fits(item) == true)
+            {
+                return true;
+            }
+    
+            item.RotateOY();
+    
+            if(Fits(item) == true)
+            {
+                return true;
+            }
         }
 
         return false;
     }
 
-    private void PrintGeneration(int generation)
+    private void PrintGeneration(int generation, PrintWriter printWriter)
     {
-
-        System.out.println("Generation " + generation);
+        printWriter.println("Generation " + generation);
         for(int i = 0; i < generationSize; i++)
         {
-            System.out.println(currentGeneration[i] + " " + decimalFormat.format(generationFitness[i]) + "%");
+            printWriter.println(currentGeneration[i] + " " + decimalFormat.format(generationFitness[i]) + "%");;
         }
 
-        System.out.println("Averegae Fitness: " + decimalFormat.format(totalFitness) + "%\n");
+        printWriter.println("Averegae Fitness: " + decimalFormat.format(totalFitness) + "%\n");
     }
 
     private String CreateGene()
@@ -459,5 +509,29 @@ public class ArrangementGeneticAlgorithm
         }
 
         return position;
+    }
+
+    private Boolean CheckForStop()
+    {
+        previousBests[previousCount++] = generationFitness[PickFittest()];
+        if(previousCount == maxPrevious)
+        {
+            previousCount = 0;
+        }
+
+        return TerminateExecution();
+    }
+
+    private Boolean TerminateExecution()
+    {
+        for(int i = 0; i < maxPrevious - 1; i++)
+        {
+            if(previousBests[i] != previousBests[i + 1])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

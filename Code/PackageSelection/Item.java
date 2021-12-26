@@ -1,4 +1,4 @@
-package PackageArrangement;
+package PackageSelection;
 
 import java.util.Scanner;
 
@@ -9,7 +9,7 @@ public class Item
     public double value;
     public boolean hasPriority;
     Dimensions dimensions = new Dimensions();
-    String destination;
+    public String destination;
 
     private String inputLine;
 
@@ -73,5 +73,10 @@ public class Item
         temporary = dimensions.length;
         dimensions.length = dimensions.width;
         dimensions.width = temporary;
+    }
+
+    public void PrintPackage()
+    {
+        System.out.println("Weight: " + weight + ", Volume: " + volume + ", Value: " + value + ", Destination: " + destination);
     }
 }

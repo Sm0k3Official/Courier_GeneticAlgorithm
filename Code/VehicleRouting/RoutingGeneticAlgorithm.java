@@ -2,6 +2,9 @@ package VehicleRouting;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Random;
 import java.util.Scanner;
 import java.text.DecimalFormat;
@@ -26,23 +29,63 @@ public class RoutingGeneticAlgorithm
     private int[][] newGeneration;
     private double[] generationFitness;
 
-    public void SolveProblem()
+    public String SolveProblem()
     {
         ReadInput();
         AllocateMemory();
 
         CreateInitialGeneration();
         FindGenerationFitness();
-        PrintGeneration();
 
-        while(generationCounter < maxGenerations)
+        try
         {
-            CreateGeneration();
-            UpdateGeneration();
-            FindGenerationFitness();
-            PrintGeneration();
-            generationCounter++;
+            FileWriter fileWriter = new FileWriter("Data/routingOutput.txt");
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+
+            PrintGeneration(0, printWriter);
+
+            while(generationCounter < maxGenerations)
+            {
+                CreateGeneration();
+                UpdateGeneration();
+                FindGenerationFitness();
+                PrintGeneration(generationCounter + 1, printWriter);
+                generationCounter++;
+            }
+
+            printWriter.close();
         }
+        catch(IOException e)
+        {
+            System.out.println("An error occurred!");
+            e.printStackTrace();
+        }
+
+        int[] bestSolution = currentGeneration[PickFittest()];
+        StringBuilder solution = new StringBuilder();
+        
+        solution.append("The route is ");
+        for(int i = 0; i < geneSize; i++)
+        {
+            if(bestSolution[i] == -1)
+            {
+                solution.append(hubLocation.name);
+            }
+            else
+            {
+                solution.append(destinations[bestSolution[i]].name);
+            }
+
+            if(i != geneSize - 1)
+            {
+                solution.append("->");
+            }
+        }
+        solution.append(" with a total distance of ");
+
+        solution.append(decimalFormat.format(generationFitness[PickFittest()] * 100));
+        solution.append("km");
+        return solution.toString();
     }
 
     private void ReadInput()
@@ -205,18 +248,20 @@ public class RoutingGeneticAlgorithm
         generationFitness = new double[generationSize];
     }
 
-    private void PrintGeneration()
+    private void PrintGeneration(int index, PrintWriter printWriter)
     {
-        System.out.println("Generation " + generationCounter);
+        printWriter.println("Generation " + index);
         for(int i = 0; i < generationSize; i++)
         {
             for(int j = 0; j < geneSize; j++)
             {
-                System.out.print(currentGeneration[i][j]);
+                printWriter.print(currentGeneration[i][j]);
             }
 
-            System.out.println(" " + decimalFormat.format(generationFitness[i]));
+            printWriter.println(" " + decimalFormat.format(generationFitness[i]));
         }
+
+        printWriter.println();
     }
 
     private int[] CreateGene()
@@ -445,14 +490,5 @@ public class RoutingGeneticAlgorithm
         }
 
         return position;
-    }
-
-    public void Testing()
-    {
-        ReadInput();
-        AllocateMemory();
-        CreateInitialGeneration();
-        FindGenerationFitness(); 
-        PrintGeneration();
     }
 }

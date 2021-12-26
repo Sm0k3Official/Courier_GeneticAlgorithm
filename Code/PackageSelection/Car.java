@@ -1,4 +1,4 @@
-package PackageArrangement;
+package PackageSelection;
 
 import java.util.Scanner;
 

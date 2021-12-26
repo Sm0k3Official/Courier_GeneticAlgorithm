@@ -1,4 +1,4 @@
-package PackageArrangement;
+package PackageSelection;
 
 public class Dimensions 
 {

@@ -4,3 +4,4 @@ Items Number: 5
 Crossover Rate: 0.8
 Mutation Rate: 0.1
 Tournament Contestants: 5
+Max Previous: 5
