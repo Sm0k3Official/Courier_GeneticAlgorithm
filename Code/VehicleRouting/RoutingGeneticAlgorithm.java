@@ -19,6 +19,8 @@ public class RoutingGeneticAlgorithm
     private int generationCounter = 0;
     private int generationSize;
     private int tournamentConstestants;
+    private int previousCount = 0;
+    private int maxPrevious;
     private City hubLocation;
     private int geneSize;
     private double crossoverRate;
@@ -28,6 +30,7 @@ public class RoutingGeneticAlgorithm
     private int[][] currentGeneration;
     private int[][] newGeneration;
     private double[] generationFitness;
+    private double[] previousBests;
 
     public String SolveProblem()
     {
@@ -44,7 +47,7 @@ public class RoutingGeneticAlgorithm
 
             PrintGeneration(0, printWriter);
 
-            while(generationCounter < maxGenerations)
+            while(CheckForStop() == false && generationCounter < maxGenerations)
             {
                 CreateGeneration();
                 UpdateGeneration();
@@ -183,7 +186,7 @@ public class RoutingGeneticAlgorithm
 
         String inputData;
         String name;
-        String value;
+        String data;
 
         while(scan.hasNextLine())
         {
@@ -191,7 +194,7 @@ public class RoutingGeneticAlgorithm
             inputData = inputData.strip();
             
             name = FindName(inputData);
-            value = FindValue(inputData);
+            data = FindValue(inputData);
 
             switch(name)
             {
@@ -199,7 +202,7 @@ public class RoutingGeneticAlgorithm
                 hubLocation = new City();
                 for(int i = 0; i < citiesNumber; i++)
                 {
-                    if(cities[i].name.equals(value))
+                    if(cities[i].name.equals(data))
                     {
                         hubLocation = cities[i];
                         break;
@@ -208,23 +211,26 @@ public class RoutingGeneticAlgorithm
                 break;
 
             case "generation size":
-                generationSize = Integer.parseInt(value);
+                generationSize = Integer.parseInt(data);
                 break;
 
             case "tournament contestants":
-                tournamentConstestants = Integer.parseInt(value);
+                tournamentConstestants = Integer.parseInt(data);
                 break;
 
             case "crossover rate":
-                crossoverRate = Double.parseDouble(value);
+                crossoverRate = Double.parseDouble(data);
                 break;
 
             case "mutation rate":
-                mutationRate = Double.parseDouble(value);
+                mutationRate = Double.parseDouble(data);
                 break;
 
             case "max generations":
-                maxGenerations = Integer.parseInt(value);
+                maxGenerations = Integer.parseInt(data);
+
+            case "max previous":
+                maxPrevious = Integer.parseInt(data);
             }
         }
 
@@ -246,6 +252,7 @@ public class RoutingGeneticAlgorithm
         }
 
         generationFitness = new double[generationSize];
+        previousBests = new double[maxPrevious];
     }
 
     private void PrintGeneration(int index, PrintWriter printWriter)
@@ -490,5 +497,29 @@ public class RoutingGeneticAlgorithm
         }
 
         return position;
+    }
+
+    private Boolean CheckForStop()
+    {
+        previousBests[previousCount++] = generationFitness[PickFittest()];
+        if(previousCount == maxPrevious)
+        {
+            previousCount = 0;
+        }
+
+        return TerminateExecution();
+    }
+
+    private Boolean TerminateExecution()
+    {
+        for(int i = 0; i < maxPrevious - 1; i++)
+        {
+            if(previousBests[i] != previousBests[i + 1])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

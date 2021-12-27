@@ -1,6 +1,7 @@
 Hub: Brasov
-Generation Size: 25
+Generation Size: 10
 Tournament Contestants: 5
 Crossover Rate: 0.8
 Mutation Rate: 0.1
-Max Generations: 10
+Max Generations: 25
+Max Previous: 5
