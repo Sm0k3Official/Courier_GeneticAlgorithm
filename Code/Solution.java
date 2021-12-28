@@ -13,10 +13,12 @@ public class Solution
 
     public static void main(String[] args)
     {
+        long nano_startTime = System.nanoTime();
+
         SelectItems();
         PassItems();
         System.out.println();
-        FindRoute();
+        FindRoute(nano_startTime);
     }
 
     private static void SelectItems()
@@ -59,11 +61,15 @@ public class Solution
         }
     }
 
-    private static void FindRoute()
+    private static void FindRoute(long nano_startTime)
     {
         RoutingGeneticAlgorithm routing = new RoutingGeneticAlgorithm();
         route = routing.SolveProblem();
 
         System.out.println(route);
+
+        long nano_endTime = System.nanoTime();
+
+        System.out.println("\nThe running time of the program is " + (double)(nano_endTime - nano_startTime)/1000000000 + " seconds\n");
     }
 }
