@@ -511,6 +511,23 @@ public class SelectionGeneticAlgorithm
         return position;
     }
 
+    private int PickWorst()
+    {
+        double bestIndividual = 100;
+        int position = 0;
+
+        for(int i = 0; i < generationSize; i++)
+        {
+            if(generationFitness[i] < bestIndividual)
+            {
+                bestIndividual = generationFitness[i];
+                position = i;
+            }
+        }
+
+        return position;
+    }
+
     private Boolean CheckForStop()
     {
         previousBests[previousCount++] = generationFitness[PickFittest()];

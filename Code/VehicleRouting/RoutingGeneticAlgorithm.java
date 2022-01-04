@@ -88,6 +88,7 @@ public class RoutingGeneticAlgorithm
 
         solution.append(decimalFormat.format(generationFitness[PickFittest()] * 100));
         solution.append("km");
+
         return solution.toString();
     }
 
@@ -492,6 +493,23 @@ public class RoutingGeneticAlgorithm
             if(generationFitness[i] < min)
             {
                 min = generationFitness[i];
+                position = i;
+            }
+        }
+
+        return position;
+    }
+
+    private int PickWorst()
+    {
+        double max = Double.NEGATIVE_INFINITY;
+        int position = 0;
+
+        for(int i = 0; i < generationSize; i++)
+        {
+            if(generationFitness[i] > max)
+            {
+                max = generationFitness[i];
                 position = i;
             }
         }
