@@ -16,7 +16,7 @@ public class SelectionGeneticAlgorithm
     private int maxGenerations;
     private int generationCounter = 0;
     private int tournamentConstestants;
-    private int generationSize;
+    public int generationSize; //private int generationSize;
     private int numberOfItems;
     private int totalPriorityPackages = 0;
     private int previousCount = 0;
@@ -26,7 +26,7 @@ public class SelectionGeneticAlgorithm
     private double crossoverRate;
     private double mutationRate;
     private Car car = new Car();
-    private double[] generationFitness;
+    public double[] generationFitness; //private double[] generationFitness;
     private String[] currentGeneration;
     private String[] newGeneration;
     private Item[] items;

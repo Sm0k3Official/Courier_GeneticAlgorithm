@@ -17,7 +17,7 @@ public class RoutingGeneticAlgorithm
     private int destinationsNumber;
     private int maxGenerations;
     private int generationCounter = 0;
-    private int generationSize;
+    public int generationSize; //private int generationSize;
     private int tournamentConstestants;
     private int previousCount = 0;
     private int maxPrevious;
@@ -29,7 +29,7 @@ public class RoutingGeneticAlgorithm
     private City[] destinations;
     private int[][] currentGeneration;
     private int[][] newGeneration;
-    private double[] generationFitness;
+    public double[] generationFitness; //private double[] generationFitness;
     private double[] previousBests;
 
     public String SolveProblem()

@@ -5,16 +5,23 @@ import java.io.PrintWriter;
 import PackageSelection.Item;
 import PackageSelection.SelectionGeneticAlgorithm;
 import VehicleRouting.RoutingGeneticAlgorithm;
+import Graph.Graph;
 
 public class Solution
 {
     private static Item[] selectedItems;
     private static String route;
 
+    private static int generationSizePSP;
+    private static double[] generationFitnessPSP;
+
+    private static int generationSizeVRP;
+    private static double[] generationFitnessVRP;
+
     public static void main(String[] args)
     {
         long nano_startTime = System.nanoTime();
-
+        
         SelectItems();
         PassItems();
         System.out.println();
@@ -28,6 +35,16 @@ public class Solution
     {
         SelectionGeneticAlgorithm selection = new SelectionGeneticAlgorithm();
         selectedItems = selection.SolveProblem();
+        
+        //extract values from PSP
+        generationSizePSP = selection.generationSize;
+        generationFitnessPSP = new double[generationSizePSP];
+
+        for(int index=0;index<generationSizePSP;index++)
+            generationFitnessPSP[index] = selection.generationFitness[index];
+
+        //draw graph for PSP
+        Graph PSP = new Graph(generationFitnessPSP, generationSizePSP, "Package Selection Problem - Graph");
 
         PrintItems();
     }
@@ -68,6 +85,19 @@ public class Solution
     {
         RoutingGeneticAlgorithm routing = new RoutingGeneticAlgorithm();
         route = routing.SolveProblem();
+
+        //extract values from VRP
+        generationSizeVRP = routing.generationSize;
+        generationFitnessVRP = new double[generationSizeVRP];
+
+        for(int index=0;index<generationSizeVRP;index++)
+            generationFitnessVRP[index] = routing.generationFitness[index];
+
+        for(int index=0;index<generationSizeVRP;index++)
+            System.out.println(routing.generationFitness[index] + " ");
+
+        //draw graph for VRP
+        Graph VRP = new Graph(generationFitnessVRP, generationSizeVRP, "Vehicle Routing Problem - Graph");
 
         System.out.println(route);
     }
