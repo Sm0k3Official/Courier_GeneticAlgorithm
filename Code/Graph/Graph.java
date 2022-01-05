@@ -25,7 +25,7 @@ public class Graph extends JPanel
     private Color lineColor = new Color(44, 102, 230, 180);
     private Color pointColor = Color.BLACK;
     private Color gridColor = new Color(200, 200, 200, 200);
-    private String graphTitle = "";
+    private String graphTitle = ""; 
     private ArrayList<Double> dataPoints;
 
     public Graph(ArrayList<Double> data_points, String graphTitle) 
