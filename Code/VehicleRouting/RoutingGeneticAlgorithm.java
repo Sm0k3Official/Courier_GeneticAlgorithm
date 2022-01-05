@@ -5,9 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 import java.text.DecimalFormat;
+import Graph.Graph;
 
 public class RoutingGeneticAlgorithm
 {
@@ -31,6 +33,8 @@ public class RoutingGeneticAlgorithm
     private int[][] newGeneration;
     private double[] generationFitness;
     private double[] previousBests;
+    private ArrayList<Double> dataPoints = new ArrayList<Double>();
+    private Graph routingGraph;
 
     public String SolveProblem()
     {
@@ -39,6 +43,9 @@ public class RoutingGeneticAlgorithm
 
         CreateInitialGeneration();
         FindGenerationFitness();
+
+        dataPoints.add(generationFitness[PickFittest()]);
+        dataPoints.add(generationFitness[PickWorst()]);
 
         try
         {
@@ -52,6 +59,10 @@ public class RoutingGeneticAlgorithm
                 CreateGeneration();
                 UpdateGeneration();
                 FindGenerationFitness();
+
+                dataPoints.add(generationFitness[PickFittest()]);
+                dataPoints.add(generationFitness[PickWorst()]);
+
                 PrintGeneration(generationCounter + 1, printWriter);
                 generationCounter++;
             }
@@ -88,6 +99,8 @@ public class RoutingGeneticAlgorithm
 
         solution.append(decimalFormat.format(generationFitness[PickFittest()] * 100));
         solution.append("km");
+        
+        routingGraph = new Graph(dataPoints, "Routing Graph");
 
         return solution.toString();
     }

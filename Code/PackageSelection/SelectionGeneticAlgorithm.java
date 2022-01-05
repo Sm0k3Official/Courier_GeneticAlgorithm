@@ -1,5 +1,6 @@
 package PackageSelection;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
+import Graph.Graph;
 
 public class SelectionGeneticAlgorithm 
 {
@@ -31,6 +33,8 @@ public class SelectionGeneticAlgorithm
     private String[] newGeneration;
     private Item[] items;
     private double[] previousBests;
+    private ArrayList<Double> dataPoints = new ArrayList<Double>();
+    private Graph selectionGraph;
     
     public Item[] SolveProblem()  
     {
@@ -38,6 +42,8 @@ public class SelectionGeneticAlgorithm
 
         CreateInitialGeneration();
         totalFitness = FindGenerationFitness();
+
+        dataPoints.add(totalFitness);
 
         try
         {
@@ -50,6 +56,9 @@ public class SelectionGeneticAlgorithm
                 CreateGeneration();
                 UpdateGeneration();
                 totalFitness = FindGenerationFitness();
+
+                dataPoints.add(totalFitness);
+
                 PrintGeneration(generationCounter + 1, printWriter);
                 generationCounter++;
             }
@@ -87,6 +96,8 @@ public class SelectionGeneticAlgorithm
                 solution[currentIndex++] = items[i];
             }
         }
+
+        selectionGraph = new Graph(dataPoints, "Selection Graph");
 
         return solution;
     }
@@ -275,7 +286,7 @@ public class SelectionGeneticAlgorithm
             printWriter.println(currentGeneration[i] + " " + decimalFormat.format(generationFitness[i]) + "%");;
         }
 
-        printWriter.println("Averegae Fitness: " + decimalFormat.format(totalFitness) + "%\n");
+        printWriter.println("Average Fitness: " + decimalFormat.format(totalFitness) + "%\n");
     }
 
     private String CreateGene()
@@ -502,23 +513,6 @@ public class SelectionGeneticAlgorithm
         for(int i = 0; i < generationSize; i++)
         {
             if(generationFitness[i] > bestIndividual)
-            {
-                bestIndividual = generationFitness[i];
-                position = i;
-            }
-        }
-
-        return position;
-    }
-
-    private int PickWorst()
-    {
-        double bestIndividual = 100;
-        int position = 0;
-
-        for(int i = 0; i < generationSize; i++)
-        {
-            if(generationFitness[i] < bestIndividual)
             {
                 bestIndividual = generationFitness[i];
                 position = i;
