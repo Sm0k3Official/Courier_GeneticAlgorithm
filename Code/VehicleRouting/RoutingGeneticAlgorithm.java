@@ -99,7 +99,6 @@ public class RoutingGeneticAlgorithm
 
         solution.append(decimalFormat.format(generationFitness[PickFittest()] * 100));
         solution.append("km");
-        
         routingGraph = new Graph(dataPoints, "Routing Graph");
 
         return solution.toString();
