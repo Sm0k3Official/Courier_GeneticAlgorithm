@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.TimeoutException;
 import java.text.DecimalFormat;
 import Graph.Graph;
 
@@ -99,7 +100,15 @@ public class RoutingGeneticAlgorithm
 
         solution.append(decimalFormat.format(generationFitness[PickFittest()] * 100));
         solution.append("km");
-        routingGraph = new Graph(dataPoints, "Routing Graph");
+        
+        String titleName = "Routing Graph - ";
+    
+        String numberOfGeneration = Integer.toString(generationCounter+1);
+
+        titleName = titleName.concat(numberOfGeneration);
+        titleName = titleName.concat(" Generations ");
+
+        routingGraph = new Graph(dataPoints, titleName);
 
         return solution.toString();
     }

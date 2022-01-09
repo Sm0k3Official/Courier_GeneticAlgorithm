@@ -97,7 +97,14 @@ public class SelectionGeneticAlgorithm
             }
         }
 
-        selectionGraph = new Graph(dataPoints, "Selection Graph");
+        String titleName = "Selection Graph - ";
+    
+        String numberOfGeneration = Integer.toString(generationCounter+1);
+
+        titleName = titleName.concat(numberOfGeneration);
+        titleName = titleName.concat(" Generations ");
+        
+        selectionGraph = new Graph(dataPoints, titleName);
 
         return solution;
     }
